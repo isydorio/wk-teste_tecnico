@@ -1,0 +1,206 @@
+object FormClient: TFormClient
+  Left = 0
+  Top = 0
+  Caption = 'WK Tethnology - Teste T'#233'cnico'
+  ClientHeight = 402
+  ClientWidth = 640
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object GroupBox1: TGroupBox
+    Align = Top
+    Size.Width = 640.000000000000000000
+    Size.Height = 313.000000000000000000
+    Size.PlatformDefault = False
+    Text = '  Dados do Cliente  '
+    TabOrder = 1
+    object Label1: TLabel
+      Position.X = 8.000000000000000000
+      Position.Y = 40.000000000000000000
+      TextSettings.HorzAlign = Trailing
+      Text = 'Natureza:'
+      TabOrder = 41
+    end
+    object Label2: TLabel
+      Position.X = 8.000000000000000000
+      Position.Y = 64.000000000000000000
+      TextSettings.HorzAlign = Trailing
+      Text = 'CPF / CNPJ:'
+      TabOrder = 40
+    end
+    object Label3: TLabel
+      Position.X = 8.000000000000000000
+      Position.Y = 88.000000000000000000
+      TextSettings.HorzAlign = Trailing
+      Text = 'Nome / Fantasia:'
+      TabOrder = 39
+    end
+    object Label4: TLabel
+      Position.X = 8.000000000000000000
+      Position.Y = 112.000000000000000000
+      TextSettings.HorzAlign = Trailing
+      Text = 'Sobrenome / R. Social:'
+      TabOrder = 38
+    end
+    object GroupBox2: TGroupBox
+      Align = Bottom
+      Position.Y = 136.000000000000000000
+      Size.Width = 640.000000000000000000
+      Size.Height = 177.000000000000000000
+      Size.PlatformDefault = False
+      Text = '  Endere'#231'o  '
+      TabOrder = 42
+      object Label5: TLabel
+        Position.X = 8.000000000000000000
+        Position.Y = 24.000000000000000000
+        TextSettings.HorzAlign = Trailing
+        Text = 'CEP:'
+        TabOrder = 43
+      end
+      object Label6: TLabel
+        Position.X = 8.000000000000000000
+        Position.Y = 48.000000000000000000
+        TextSettings.HorzAlign = Trailing
+        Text = 'Logradouto:'
+        TabOrder = 42
+      end
+      object Label7: TLabel
+        Position.X = 8.000000000000000000
+        Position.Y = 72.000000000000000000
+        TextSettings.HorzAlign = Trailing
+        Text = 'Complemento:'
+        TabOrder = 41
+      end
+      object Label8: TLabel
+        Position.X = 8.000000000000000000
+        Position.Y = 120.000000000000000000
+        TextSettings.HorzAlign = Trailing
+        Text = 'Cidade:'
+        TabOrder = 40
+      end
+      object Label9: TLabel
+        Position.X = 8.000000000000000000
+        Position.Y = 144.000000000000000000
+        TextSettings.HorzAlign = Trailing
+        Text = 'UF:'
+        TabOrder = 38
+      end
+      object Label10: TLabel
+        Position.X = 8.000000000000000000
+        Position.Y = 96.000000000000000000
+        TextSettings.HorzAlign = Trailing
+        Text = 'Bairro:'
+        TabOrder = 39
+      end
+      object edtCep: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 44
+        Position.X = 136.000000000000000000
+        Position.Y = 16.000000000000000000
+        OnExit = edtCepExit
+      end
+      object edtLogradouro: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 45
+        Position.X = 136.000000000000000000
+        Position.Y = 40.000000000000000000
+        Size.Width = 497.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object edtComplemento: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 46
+        Position.X = 136.000000000000000000
+        Position.Y = 64.000000000000000000
+        Size.Width = 225.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object edtBairro: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 49
+        Position.X = 136.000000000000000000
+        Position.Y = 88.000000000000000000
+        Size.Width = 321.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object edtCidade: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 48
+        Position.X = 136.000000000000000000
+        Position.Y = 112.000000000000000000
+        Size.Width = 321.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+      end
+      object edtUf: TEdit
+        Touch.InteractiveGestures = [LongTap, DoubleTap]
+        TabOrder = 47
+        Position.X = 136.000000000000000000
+        Position.Y = 136.000000000000000000
+        Size.Width = 41.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+      end
+    end
+    object cbNatureza: TComboBox
+      Items.Strings = (
+        'Pessoa F'#237'sica'
+        'Pessoa Jur'#237'dica')
+      Position.X = 136.000000000000000000
+      Position.Y = 32.000000000000000000
+      Size.Width = 217.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 43
+    end
+    object edtDocumento: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 44
+      Position.X = 136.000000000000000000
+      Position.Y = 56.000000000000000000
+      Size.Width = 217.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object edtPrimeiro: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 45
+      Position.X = 136.000000000000000000
+      Position.Y = 80.000000000000000000
+      Size.Width = 497.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object edtSegundo: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 46
+      Position.X = 136.000000000000000000
+      Position.Y = 104.000000000000000000
+      Size.Width = 497.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+    end
+  end
+  object RESTClient1: TRESTClient
+    BaseURL = 'http://viacep.com.br/ws/cep/json'
+    Params = <>
+    Left = 480
+    Top = 208
+  end
+  object RESTRequest1: TRESTRequest
+    AssignedValues = [rvConnectTimeout, rvReadTimeout]
+    Client = RESTClient1
+    Params = <>
+    Response = RESTResponse1
+    Left = 552
+    Top = 208
+  end
+  object RESTResponse1: TRESTResponse
+    Left = 552
+    Top = 256
+  end
+end
