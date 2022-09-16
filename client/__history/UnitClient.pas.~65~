@@ -1,0 +1,125 @@
+unit UnitClient;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
+  FMX.Controls.Presentation, FMX.StdCtrls, FMX.ListBox, FMX.Edit, REST.Types,
+  REST.Client, Data.Bind.Components, Data.Bind.ObjectScope, System.JSON,
+  FMX.ListView.Types, FMX.ListView.Appearances, FMX.ListView.Adapters.Base,
+  FMX.ListView, FMX.Memo.Types, FMX.ScrollBox, FMX.Memo;
+
+type
+  TFormClient = class(TForm)
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    cbNatureza: TComboBox;
+    edtDocumento: TEdit;
+    edtPrimeiro: TEdit;
+    edtSegundo: TEdit;
+    Label5: TLabel;
+    edtCep: TEdit;
+    ToolBar1: TToolBar;
+    sbNew: TSpeedButton;
+    sbSend: TSpeedButton;
+    sbAddLote: TSpeedButton;
+    sbClearLote: TSpeedButton;
+    sbSendLote: TSpeedButton;
+    RESTClient1: TRESTClient;
+    RESTRequest1: TRESTRequest;
+    RESTResponse1: TRESTResponse;
+    Memo1: TMemo;
+    sbDelete: TSpeedButton;
+    procedure sbNewClick(Sender: TObject);
+    procedure sbSendClick(Sender: TObject);
+    procedure sbAddLoteClick(Sender: TObject);
+    procedure sbSendLoteClick(Sender: TObject);
+    procedure sbClearLoteClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormClient: TFormClient;
+  strRetorno: String;
+  reqOJSON, retOJSON, regOJSON: TJSONObject;
+  regAJSON, loteAJSON: TJSONArray;
+
+implementation
+
+{$R *.fmx}
+
+
+procedure TFormClient.sbAddLoteClick(Sender: TObject);
+begin
+if not Assigned(loteAJSON) then
+  loteAJSON := TJSONArray.Create;
+regOJSON := TJSONObject.Create;
+regOJSON.AddPair('nat', IntToStr(cbNatureza.ItemIndex+1));
+regOJSON.AddPair('doc', edtDocumento.Text);
+regOJSON.AddPair('pnome', edtPrimeiro.Text);
+regOJSON.AddPair('snome', edtSegundo.Text);
+regOJSON.AddPair('cep', edtCep.Text);
+loteAJSON.AddElement(regOJSON);
+end;
+
+procedure TFormClient.sbClearLoteClick(Sender: TObject);
+begin
+loteAJSON.Free;
+end;
+
+procedure TFormClient.sbNewClick(Sender: TObject);
+var
+  i:integer;
+begin
+for i := 0 to Pred(ComponentCount) do
+if Components[i] is TEdit then
+  TEdit(Components[i]).Text:='';
+cbNatureza.SetFocus;
+end;
+
+procedure TFormClient.sbSendClick(Sender: TObject);
+begin
+reqOJSON := TJSONObject.Create;
+regAJSON := TJSONArray.Create;
+regOJSON := TJSONObject.Create;
+regOJSON.AddPair('nat', IntToStr(cbNatureza.ItemIndex+1));
+regOJSON.AddPair('doc', edtDocumento.Text);
+regOJSON.AddPair('pnome', edtPrimeiro.Text);
+regOJSON.AddPair('snome', edtSegundo.Text);
+regOJSON.AddPair('cep', edtCep.Text);
+regAJSON.AddElement(regOJSON);
+reqOJSON.AddPair('reg',regAJSON);
+RESTRequest1.Method:=rmPOST;
+RESTRequest1.Params[0].Value:=reqOJSON.ToString;
+RESTRequest1.Execute;
+strRetorno:=RESTResponse1.Content;
+retOJSON := TJSONObject.Create;
+retOJSON := TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(strRetorno), 0) as TJSONObject;
+Memo1.Lines.Add(retOJSON.GetValue<string>('inserts', '')+' Registros adicionados');
+Memo1.Lines.Add(retOJSON.GetValue<string>('updates', '')+' Registros alterados');
+Memo1.Lines.Add(retOJSON.GetValue<string>('ignores', '')+' Registros ignorados');
+end;
+
+procedure TFormClient.sbSendLoteClick(Sender: TObject);
+begin
+reqOJSON := TJSONObject.Create;
+reqOJSON.AddPair('reg',loteAJSON);
+RESTRequest1.Method:=rmPOST;
+RESTRequest1.Params[0].Value:=reqOJSON.ToString;
+RESTRequest1.Execute;
+strRetorno:=RESTResponse1.Content;;
+retOJSON := TJSONObject.Create;
+retOJSON := TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(strRetorno), 0) as TJSONObject;
+Memo1.Lines.Add(retOJSON.GetValue<string>('inserts', '')+' Registros adicionados');
+Memo1.Lines.Add(retOJSON.GetValue<string>('updates', '')+' Registros alterados');
+Memo1.Lines.Add(retOJSON.GetValue<string>('ignores', '')+' Registros ignorados');
+end;
+
+end.
