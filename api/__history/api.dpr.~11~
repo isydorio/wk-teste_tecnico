@@ -1,0 +1,18 @@
+program api;
+
+uses
+  System.StartUpCopy,
+  FMX.Forms,
+  UnitPrincipal in 'UnitPrincipal.pas' {FormPrincipal},
+  UnitDB in 'UnitDB.pas' {FormDB},
+  UnitIntegra in 'UnitIntegra.pas' {Form1};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.CreateForm(TFormPrincipal, FormPrincipal);
+  Application.CreateForm(TFormDB, FormDB);
+  Application.CreateForm(TForm1, Form1);
+  Application.Run;
+end.

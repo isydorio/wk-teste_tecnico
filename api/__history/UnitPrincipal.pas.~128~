@@ -1,0 +1,268 @@
+unit UnitPrincipal;
+
+interface
+
+uses
+  System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants,
+  Winapi.Windows, Winapi.Messages, IdContext, IdCustomHTTPServer, IdGlobal,
+  IdBaseComponent, IdComponent, IdCustomTCPServer, System.JSON,
+  IdHeaderList, FMX.Memo.Types, FMX.StdCtrls, FMX.ScrollBox, FMX.Memo,
+  FMX.Types, FMX.Controls, FMX.Controls.Presentation, FMX.Forms, IdHTTPServer,
+  REST.Types, REST.Client, Data.Bind.Components, Data.Bind.ObjectScope;
+
+type
+  TFormPrincipal = class(TForm)
+    GroupBox1: TGroupBox;
+    ToolBar1: TToolBar;
+    sbStart: TSpeedButton;
+    sbStop: TSpeedButton;
+    Memo1: TMemo;
+    IdHTTPServer1: TIdHTTPServer;
+    procedure sbStartClick(Sender: TObject);
+    procedure sbStopClick(Sender: TObject);
+    procedure IdHTTPServer1CommandGet(AContext: TIdContext;
+      ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+    procedure IdHTTPServer1CreatePostStream(AContext: TIdContext;
+      AHeaders: TIdHeaderList; var VPostStream: TStream);
+    procedure IdHTTPServer1DoneWithPostStream(AContext: TIdContext;
+      ARequestInfo: TIdHTTPRequestInfo; var VCanFree: Boolean);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FormPrincipal: TFormPrincipal;
+
+implementation
+
+{$R *.fmx}
+
+uses UnitConnect, UnitDB, UnitIntegra;
+
+procedure TFormPrincipal.IdHTTPServer1CommandGet(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+var
+   jsonObj, retObj, retCEPJSON: TJSONObject;
+   registroArray: TJSONArray;
+   nInsert, nUpdate, nIgnore: Integer;
+   S, strRetorno: String;
+begin
+
+   Try
+     S:= ARequestInfo.Params[0];
+     jsonObj := TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(S), 0) as TJSONObject;
+     if jsonObj.GetValue<string>('op') = 'post' then
+        begin
+           registroArray := TJSONArray.Create;
+           registroArray := jsonObj.GetValue<TJSONArray>('reg');
+           TThread.Synchronize(nil,
+           procedure
+                   var
+                     i: Integer;
+                   begin
+                    nInsert:=0;
+                    nUpdate:=0;
+                    nIgnore:=0;
+                    for i:=0 to Pred(registroArray.Size) do
+                    begin
+                      FormDB.FDConnection.StartTransaction;
+                      Try
+                        //Verifica se a pessoa já foi cadastrada
+                        FormDB.FDQpessoa.Close;
+                        FormDB.FDQpessoa.SQL.Clear;
+                        FormDB.FDQpessoa.SQL.Add('SELECT * From pessoa where dsdocumento = '+QuotedStr(registroArray.Get(i).GetValue<string>('doc', '')));
+                        FormDB.FDQpessoa.Open;
+                        if FormDB.FDQpessoa.Eof then
+                          //Inserir registro
+                          begin
+                            //Tabela pessoa
+                            if (registroArray.Get(i).GetValue<string>('cep', '')<>'') then
+                            begin
+                              FormDB.FDCommand1.CommandText.Clear;
+                              FormDB.FDCommand1.CommandText.Add('INSERT INTO public.pessoa (flnatureza, dsdocumento, nmprimeiro, nmsegundo, dtregistro) ');
+                              FormDB.FDCommand1.CommandText.Add('VALUES ('+QuotedStr(registroArray.Get(i).GetValue<string>('nat', ''))+','+QuotedStr(registroArray.Get(i).GetValue<string>('doc', ''))+','+QuotedStr(registroArray.Get(i).GetValue<string>('pnome', ''))+','+QuotedStr(registroArray.Get(i).GetValue<string>('snome', ''))+',Now())');
+                              FormDB.FDCommand1.Execute;
+                              FormDB.FDQpessoa.Close;
+                              FormDB.FDQpessoa.Open;
+                              //Tabela endereco
+                              FormDB.FDCommand1.CommandText.Clear;
+                              FormDB.FDCommand1.CommandText.Add('INSERT INTO public.endereco (idpessoa, dscep) ');
+                              FormDB.FDCommand1.CommandText.Add('VALUES ('+QuotedStr(FormDB.FDQpessoaidpessoa.AsString)+','+QuotedStr(registroArray.Get(i).GetValue<string>('cep', ''))+')');
+                              FormDB.FDCommand1.Execute;
+                              //Tabela Endereço integração
+                              FormDB.FDQendereco.Close;
+                              FormDB.FDQendereco.SQL.Clear;
+                              FormDB.FDQendereco.SQL.Add('SELECT * From endereco where idpessoa = '+QuotedStr(FormDB.FDQpessoaidpessoa.AsString)+' and dscep = '+QuotedStr(registroArray.Get(i).GetValue<string>('cep', '')));
+                              FormDB.FDQendereco.Open;
+                              //Integração do CEP
+                              FormIntegra.RESTClientCEP.BaseURL:='http://viacep.com.br/ws/'+FormDB.FDQenderecodscep.AsString+'/json';
+                              Try
+                                FormIntegra.RESTRequestCEP.Execute;
+                                strRetorno:=FormIntegra.RESTResponseCEP.JSONText;
+                                retCEPJSON := TJSONObject.Create;
+                                retCEPJSON := TJSONObject.ParseJSONValue(TEncoding.UTF8.GetBytes(strRetorno),0) As TJSONObject;
+                                FormDB.FDCommand1.CommandText.Clear;
+                                FormDB.FDCommand1.CommandText.Add('INSERT INTO public.endereco_integracao (idendereco, dsuf, nmcidade, nmbairro, nmlogradouro, dscomplemento) ');
+                                FormDB.FDCommand1.CommandText.Add('VALUES ('+QuotedStr(FormDB.FDQenderecoidendereco.AsString)+','+QuotedStr(retCEPJSON.GetValue<String>('uf', ''))+','+QuotedStr(retCEPJSON.GetValue<String>('localidade', ''))+','+QuotedStr(retCEPJSON.GetValue<String>('bairro', ''))+','+QuotedStr(retCEPJSON.GetValue<String>('logradouro', ''))+','+QuotedStr(retCEPJSON.GetValue<String>('complemento', ''))+')');
+                                FormDB.FDCommand1.Execute;
+                              except on e: Exception do
+                                Memo1.Lines.Add(e.Message);
+                              End;
+                              Inc(nInsert);
+                            end
+                            else
+                              Inc(nIgnore);
+                          end
+                          else
+                          //Atualizar registro
+                          begin
+                            FormDB.FDCommand1.CommandText.Clear;
+                            FormDB.FDCommand1.CommandText.Add('UPDATE public.pessoa ');
+                            FormDB.FDCommand1.CommandText.Add('SET flnatureza='+QuotedStr(registroArray.Get(i).GetValue<string>('nat', ''))+', dsdocumento='+QuotedStr(registroArray.Get(i).GetValue<string>('doc', ''))+', nmprimeiro='+QuotedStr(registroArray.Get(i).GetValue<string>('pnome', ''))+', nmsegundo='+QuotedStr(registroArray.Get(i).GetValue<string>('snome', '')));
+                            FormDB.FDCommand1.CommandText.Add(' WHERE idpessoa = '+QuotedStr(FormDB.FDQpessoaidpessoa.AsString));
+                            FormDB.FDCommand1.Execute;
+                            //Verifica se mudou o endereço
+                            FormDB.FDQendereco.Close;
+                            FormDB.FDQendereco.SQL.Clear;
+                            FormDB.FDQendereco.SQL.Add('SELECT * From endereco where idpessoa = '+QuotedStr(FormDB.FDQpessoaidpessoa.AsString)+' and dscep = '+QuotedStr(registroArray.Get(i).GetValue<string>('cep', '')));
+                            FormDB.FDQendereco.Open;
+                            if (FormDB.FDQenderecodscep.AsString<>registroArray.Get(i).GetValue<string>('cep', '')) then
+                            //Adicionando novo endereço
+                            begin
+                               //Tabela endereco
+                              FormDB.FDCommand1.CommandText.Clear;
+                              FormDB.FDCommand1.CommandText.Add('INSERT INTO public.endereco (idpessoa, dscep) ');
+                              FormDB.FDCommand1.CommandText.Add('VALUES ('+QuotedStr(FormDB.FDQpessoaidpessoa.AsString)+','+QuotedStr(registroArray.Get(i).GetValue<string>('cep', ''))+')');
+                              FormDB.FDCommand1.Execute;
+                              //Tabela Endereço integração
+                              FormDB.FDQendereco.Close;
+                              FormDB.FDQendereco.SQL.Clear;
+                              FormDB.FDQendereco.SQL.Add('SELECT * From endereco where idpessoa = '+QuotedStr(FormDB.FDQpessoaidpessoa.AsString)+' and dscep = '+QuotedStr(registroArray.Get(i).GetValue<string>('cep', '')));
+                              FormDB.FDQendereco.Open;
+                              //Integração do CEP
+                              FormIntegra.RESTClientCEP.BaseURL:='http://viacep.com.br/ws/'+FormDB.FDQenderecodscep.AsString+'/json';
+                              Try
+                                FormIntegra.RESTRequestCEP.Execute;
+                                strRetorno:=FormIntegra.RESTResponseCEP.JSONText;
+                                retCEPJSON := TJSONObject.Create;
+                                retCEPJSON := TJSONObject.ParseJSONValue(TEncoding.UTF8.GetBytes(strRetorno),0) As TJSONObject;
+                                FormDB.FDCommand1.CommandText.Clear;
+                                FormDB.FDCommand1.CommandText.Add('INSERT INTO public.endereco_integracao (idendereco, dsuf, nmcidade, nmbairro, nmlogradouro, dscomplemento) ');
+                                FormDB.FDCommand1.CommandText.Add('VALUES ('+QuotedStr(FormDB.FDQenderecoidendereco.AsString)+','+QuotedStr(retCEPJSON.GetValue<String>('uf', ''))+','+QuotedStr(retCEPJSON.GetValue<String>('localidade', ''))+','+QuotedStr(retCEPJSON.GetValue<String>('bairro', ''))+','+QuotedStr(retCEPJSON.GetValue<String>('logradouro', ''))+','+QuotedStr(retCEPJSON.GetValue<String>('complemento', ''))+')');
+                                FormDB.FDCommand1.Execute;
+                              except on e: Exception do
+                                Memo1.Lines.Add(e.Message);
+                              End;
+                            end;
+                            Inc(nUpdate);
+                          end;
+                        FormDB.FDConnection.Commit;
+                      except on e: Exception do
+                      begin
+                        FormDB.FDConnection.Rollback;
+                        Memo1.Lines.Add(e.Message);
+                      end;
+                      End;
+                      //Retorno
+                      retObj := TJSONObject.Create;
+                      retObj.AddPair('inserts',IntToStr(nInsert));
+                      retObj.AddPair('updates',IntToStr(nUpdate));
+                      retObj.AddPair('ignores',IntToStr(nIgnore));
+                      AResponseInfo.ContentText:=retObj.ToString;
+                    end;
+                   end);
+              end;
+           Exit;
+
+        if jsonObj.GetValue<string>('op') = 'delete' then
+        begin
+          S:= ARequestInfo.Params[0];
+          jsonObj := TJSONObject.ParseJSONValue(TEncoding.ASCII.GetBytes(S), 0) as TJSONObject;
+          FormDB.FDQpessoa.Close;
+          FormDB.FDQpessoa.SQL.Clear;
+          FormDB.FDQpessoa.SQL.Add('SELECT * From pessoa where dsdocumento = '+QuotedStr(jsonObj.GetValue<string>('doc', '')));
+          FormDB.FDQpessoa.Open;
+          if FormDB.FDQpessoa.Eof then
+            strRetorno:='Registro não encontrado'
+          else
+          begin
+            FormDB.FDConnection.StartTransaction;
+            Try
+              FormDB.FDQendereco.Close;
+              FormDB.FDQendereco.SQL.Clear;
+              FormDB.FDQendereco.SQL.Add('SELECT * From endereco where idpessoa = '+QuotedStr(FormDB.FDQpessoaidpessoa.AsString));
+              FormDB.FDQendereco.Open;
+              while NOT FormDB.FDQendereco.Eof do
+              begin
+                FormDB.FDCommand1.CommandText.Clear;
+                FormDB.FDCommand1.CommandText.Add('DETELE FROM public.endereco_integracao Where idendereco='+QuotedStr(FormDB.FDQenderecoidendereco.AsString));
+                FormDB.FDCommand1.Execute;
+                FormDB.FDCommand1.CommandText.Clear;
+                FormDB.FDCommand1.CommandText.Add('DETELE FROM public.endereco Where idendereco='+QuotedStr(FormDB.FDQenderecoidendereco.AsString));
+                FormDB.FDCommand1.Execute;
+                FormDB.FDQendereco.Next;
+              end;
+              FormDB.FDCommand1.CommandText.Clear;
+              FormDB.FDCommand1.CommandText.Add('DETELE FROM public.pessoa Where idpessoa='+QuotedStr(FormDB.FDQpessoaidpessoa.AsString));
+              FormDB.FDCommand1.Execute;
+              strRetorno:='Dados da pessoa com documento nº '+jsonObj.GetValue<string>('doc', '')+' removidos com sucesso!';
+            except
+            begin
+              FormDB.FDConnection.Rollback;
+              strRetorno:='Operação não realiza!';
+            end;
+
+            End;
+          end;
+          AResponseInfo.ContentText:=strRetorno;
+          Exit;
+        end;
+   except on e: Exception do
+      FormPrincipal.Memo1.lines.Add(e.Message);
+   End;
+
+end;
+
+procedure TFormPrincipal.IdHTTPServer1CreatePostStream(AContext: TIdContext;
+  AHeaders: TIdHeaderList; var VPostStream: TStream);
+begin
+ VPostStream := TMemoryStream.Create;
+end;
+
+procedure TFormPrincipal.IdHTTPServer1DoneWithPostStream(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo; var VCanFree: Boolean);
+begin
+  VCanFree := false;
+end;
+
+procedure TFormPrincipal.sbStartClick(Sender: TObject);
+begin
+Try
+  IdHTTPServer1.Active:=True;
+  sbStart.Enabled:=False;
+  sbStop.Enabled:=True;
+  FormDB.FDConnection.Connected:=True;
+  Memo1.Lines.Add('Iniciando Servidor')
+except on e: Exception do
+  Memo1.lines.Add(e.Message);
+End;
+
+
+end;
+
+procedure TFormPrincipal.sbStopClick(Sender: TObject);
+begin
+IdHTTPServer1.Active:=False;
+sbStart.Enabled:=True;
+sbStop.Enabled:=False;
+Memo1.Lines.Add('Finalizando Servidor')
+end;
+
+end.
+
+
+end;
+
+

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2021/05/16 09:43:42.000.821,=C:\Users\Isydório\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2021/05/17 07:02:21.000.933,=C:\Users\Isydório\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/09/15 06:58:53.000.092,=C:\Users\Isydório\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>2022/09/15 06:59:20.000.504,C:\Users\Isydório\Documents\Embarcadero\Studio\Projects\Unit1.pas=D:\wk\api\UnitPrincipal.pas</Transaction>
+    <Transaction>2022/09/15 06:59:20.000.504,C:\Users\Isydório\Documents\Embarcadero\Studio\Projects\Unit1.fmx=D:\wk\api\UnitPrincipal.fmx</Transaction>
+    <Transaction>2022/09/15 06:59:22.000.952,C:\Users\Isydório\Documents\Embarcadero\Studio\Projects\Project1.dproj=D:\wk\api\api.dproj</Transaction>
+    <Transaction>2022/09/16 08:56:30.000.814,=D:\wk\api\Unit1.pas</Transaction>
+    <Transaction>2022/09/16 08:58:00.000.005,D:\wk\api\UnitData.pas=D:\wk\api\Unit1.pas</Transaction>
+    <Transaction>2022/09/16 08:58:00.000.005,D:\wk\api\UnitData.dfm=D:\wk\api\Unit1.dfm</Transaction>
+    <Transaction>2022/09/16 08:59:33.000.210,=D:\wk\api\Unit1.pas</Transaction>
+    <Transaction>2022/09/16 09:00:14.000.777,D:\wk\api\UnitConnect.pas=D:\wk\api\Unit1.pas</Transaction>
+    <Transaction>2022/09/16 09:00:14.000.777,D:\wk\api\UnitConnect.fmx=D:\wk\api\Unit1.fmx</Transaction>
+    <Transaction>2022/09/16 09:23:18.000.053,=D:\wk\api\Unit1.pas</Transaction>
+    <Transaction>2022/09/16 09:23:52.000.176,D:\wk\api\UnitDB.fmx=D:\wk\api\Unit1.fmx</Transaction>
+    <Transaction>2022/09/16 09:23:52.000.176,D:\wk\api\UnitDB.pas=D:\wk\api\Unit1.pas</Transaction>
+    <Transaction>2022/09/16 09:24:47.000.537,D:\wk\api\UnitData.pas=</Transaction>
+    <Transaction>2022/09/16 11:13:16.000.073,D:\wk\api\UnitConnect.pas=</Transaction>
+    <Transaction>2022/09/16 13:26:18.000.814,=D:\wk\api\UnitConnect.pas</Transaction>
+    <Transaction>2022/09/16 13:26:29.000.503,D:\wk\api\UnitConnect.pas=</Transaction>
+    <Transaction>2022/09/16 13:26:36.000.777,=D:\wk\api\Unit1.pas</Transaction>
+    <Transaction>2022/09/16 13:27:01.000.432,D:\wk\api\Unit1.pas=D:\wk\api\UnitIntegra.pas</Transaction>
+    <Transaction>2022/09/16 13:27:01.000.432,D:\wk\api\Unit1.fmx=D:\wk\api\UnitIntegra.fmx</Transaction>
+  </Transactions>
+</BorlandProject>

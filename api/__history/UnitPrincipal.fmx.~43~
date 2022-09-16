@@ -1,0 +1,84 @@
+object FormPrincipal: TFormPrincipal
+  Left = 0
+  Top = 0
+  Caption = 'WK Technology - Teste t'#233'cnico'
+  ClientHeight = 336
+  ClientWidth = 642
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object GroupBox1: TGroupBox
+    Align = Bottom
+    Position.Y = 86.000000000000000000
+    Size.Width = 642.000000000000000000
+    Size.Height = 250.000000000000000000
+    Size.PlatformDefault = False
+    Text = '  Opera'#231#245'es  '
+    TabOrder = 7
+    object Memo1: TMemo
+      Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+      DataDetectorTypes = []
+      Align = Client
+      Size.Width = 642.000000000000000000
+      Size.Height = 250.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 38
+      Viewport.Width = 638.000000000000000000
+      Viewport.Height = 246.000000000000000000
+    end
+  end
+  object ToolBar1: TToolBar
+    Size.Width = 642.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 8
+    object sbStart: TSpeedButton
+      Align = Left
+      ImageIndex = 0
+      Size.Width = 121.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Iniciar Servidor'
+      OnClick = sbStartClick
+    end
+    object sbStop: TSpeedButton
+      Align = Right
+      Enabled = False
+      ImageIndex = 1
+      Position.X = 521.000000000000000000
+      Size.Width = 121.000000000000000000
+      Size.Height = 40.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Parar Servidor'
+      OnClick = sbStopClick
+    end
+  end
+  object IdHTTPServer1: TIdHTTPServer
+    Bindings = <>
+    DefaultPort = 59020
+    OnCreatePostStream = IdHTTPServer1CreatePostStream
+    OnDoneWithPostStream = IdHTTPServer1DoneWithPostStream
+    OnCommandGet = IdHTTPServer1CommandGet
+    Left = 72
+    Top = 56
+  end
+  object RESTClientCEP: TRESTClient
+    BaseURL = 'http://viacep.com.br/ws/cep/json'
+    Params = <>
+    Left = 312
+    Top = 48
+  end
+  object RESTRequestCEP: TRESTRequest
+    AssignedValues = [rvConnectTimeout, rvReadTimeout]
+    Client = RESTClientCEP
+    Params = <>
+    Response = RESTResponseCEP
+    Left = 384
+    Top = 48
+  end
+  object RESTResponseCEP: TRESTResponse
+    Left = 384
+    Top = 96
+  end
+end

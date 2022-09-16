@@ -1,0 +1,18 @@
+program api;
+
+uses
+  System.StartUpCopy,
+  FMX.Forms,
+  UnitPrincipal in 'UnitPrincipal.pas' {FormPrincipal},
+  UnitData in 'UnitData.pas' {DM: TDataModule},
+  UnitConnect in 'UnitConnect.pas' {FormConnect};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.CreateForm(TFormPrincipal, FormPrincipal);
+  Application.CreateForm(TDM, DM);
+  Application.CreateForm(TFormConnect, FormConnect);
+  Application.Run;
+end.
